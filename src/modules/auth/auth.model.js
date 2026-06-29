@@ -67,5 +67,4 @@ const userSchema = new Schema(
   },
 );
 
-// What you want to store in DB and what sort of schema do it need to follow?
 export default model("User", userSchema);
