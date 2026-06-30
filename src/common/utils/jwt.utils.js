@@ -56,6 +56,8 @@ const verifyRefreshToken = (token) => {
   }
 };
 
+////////////////////////////////////////////////////
+
 const generateResetToken = () => {
   // 32 = bytes  and converting from hex value
   const rawToken = crypto.randomBytes(32).toString("hex");

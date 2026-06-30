@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { ROLES } from "../../common/constants/roles.js";
+import bcrypt from "bcryptjs";
 
 // Cerated Schema
 const userSchema = new Schema(
@@ -66,5 +67,16 @@ const userSchema = new Schema(
     versionKey: false, // __v field will not be created in DB
   },
 );
+
+userSchema.pre("save", async function (next) {
+  //* If password is not modified then no need to hash the password again
+  if (!this.isModified(this.password)) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+userSchema.methods.comparePassword = async function (userPassword) {
+  return await bcrypt.compare(userPassword, this.password);
+};
 
 export default model("User", userSchema);

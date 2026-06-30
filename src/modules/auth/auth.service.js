@@ -16,12 +16,10 @@ const register = async ({ name, email, password, role }) => {
 
   const { rawToken, hashedToken } = generateResetToken();
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
   const user = await User.create({
     name,
     email,
-    password: hashedPassword,
+    password,
     role,
     verificationToken: hashedToken,
   });
@@ -53,9 +51,9 @@ const login = async ({ email, password }) => {
   const user = await User.findOne({ email }).select("+password");
   if (!user) throw ApiError.unauthorized("Invalid email or password");
 
-  const isMatchPassword = await bcrypt.compare(password, user.password);
+  const isMatchPassword = await user.comparePassword(password);
   if (!isMatchPassword)
-    throw ApiError.unAuthorized("Invalid email or password");
+    throw ApiError.unauthorized("Invalid email or password");
 
   if (!user.isVerified) throw ApiError.unAuthorized("Please verify your email");
 
@@ -75,6 +73,12 @@ const login = async ({ email, password }) => {
     accessToken,
     refreshToken,
   };
+};
+
+const logout = async (userId) => {
+  if (!userId) throw ApiError.unAuthorized("No user ID present");
+  await User.findByIdAndUpdate(userId, { refreshToken: null });
+  return;
 };
 
 const refresh = async (token) => {
@@ -113,12 +117,6 @@ const refresh = async (token) => {
     accessToken,
     refreshToken,
   };
-};
-
-const logout = async (userId) => {
-  if (!userId) throw ApiError.unAuthorized("No user ID present");
-  await User.findByIdAndUpdate(userId, { refreshToken: null });
-  return;
 };
 
 const forgotPassword = async (email) => {
