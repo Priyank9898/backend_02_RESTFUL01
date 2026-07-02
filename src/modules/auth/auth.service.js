@@ -1,5 +1,4 @@
 import ApiError from "../../common/utils/api-error.js";
-import { hashToken } from "../../common/utils/hash-value.js";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -9,6 +8,9 @@ import {
 import User from "./auth.model.js";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
 
 const register = async ({ name, email, password, role }) => {
   const existingUser = await User.findOne({ email });
@@ -36,15 +38,6 @@ const register = async ({ name, email, password, role }) => {
 };
 
 const login = async ({ email, password }) => {
-  /**
-   ** Check if input is given done
-   ** is email in the DB ? also get the password
-   ** Check if user if verified
-   ** compare password
-   ** if correct generate refresh and access token
-   ** hash refresh token and save it in DB and give user access and refresh token
-   */
-
   if (!email || !password)
     throw ApiError.badRequest("Kindly enter email and password");
 
@@ -69,7 +62,7 @@ const login = async ({ email, password }) => {
   delete userObj.verificationToken;
 
   return {
-    userObj,
+    user: userObj,
     accessToken,
     refreshToken,
   };
