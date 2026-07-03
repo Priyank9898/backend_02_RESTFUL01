@@ -36,4 +36,9 @@ const logout = async (req, res) => {
   });
 };
 
-export { register, login };
+const getMe = async (req, res) => {
+  const user = await authService.getMe(req.user.id);
+  ApiResponse.ok(res, { message: "User Profile", data: user });
+};
+
+export { register, login, getMe };

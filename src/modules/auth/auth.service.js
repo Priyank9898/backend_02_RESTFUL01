@@ -132,6 +132,11 @@ const forgotPassword = async (email) => {
 
   user.save({ validateBeforeSave: false });
 };
-// TODO: Reset password
 
-export { register, login, refresh, logout, forgotPassword };
+const getMe = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw ApiError.notFound("User not found");
+  return user;
+};
+
+export { register, login, refresh, logout, forgotPassword, getMe };
