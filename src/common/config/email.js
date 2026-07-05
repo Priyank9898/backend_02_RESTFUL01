@@ -1,30 +1,69 @@
 import nodemailer from "nodemailer";
 
-const nodemailer = require("nodemailer");
-
-// Create a transporter using SMTP
 const transporter = nodemailer.createTransport({
-  host: "smtp.example.com",
-  port: 587,
-  secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
+  secure: false, // true if using port 465
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
 });
 
-try {
-  const info = await transporter.sendMail({
-    from: '"Example Team" <team@example.com>', // sender address
-    to: "alice@example.com, bob@example.com", // list of recipients
-    subject: "Hello", // subject line
-    text: "Hello world?", // plain text body
-    html: "<b>Hello world?</b>", // HTML body
+// Generic email sender
+const sendMail = async (to, subject, html) => {
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM_EMAIL,
+    to,
+    subject,
+    html,
   });
+};
 
-  console.log("Message sent: %s", info.messageId);
-  // Preview URL is only available when using an Ethereal test account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-} catch (err) {
-  console.error("Error while sending mail:", err);
-}
+// EMail verification
+const sendVerificationMail = async (email, token) => {
+  const subject = "Verify Your Email";
+
+  const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${token}`;
+
+  const html = `
+    <h2>Welcome!</h2>
+
+    <p>Thank you for registering.</p>
+
+    <p>Please click the button below to verify your email.</p>
+
+    <a href="${verificationUrl}">
+      Verify Email
+    </a>
+  `;
+
+  await sendMail(email, subject, html);
+};
+
+// Forgot Password
+const sendResetPasswordMail = async (email, token) => {
+  const subject = "Reset Your Password";
+
+  const resetPasswordUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
+
+  const html = `
+    <h2>Password Reset Request</h2>
+
+    <p>We received a request to reset your password.</p>
+
+    <p>Click the button below to reset your password.</p>
+
+    <a href="${resetPasswordUrl}">
+      Reset Password
+    </a>
+
+    <p>This link will expire in 5 minutes.</p>
+
+    <p>If you didn't request this, you can safely ignore this email.</p>
+  `;
+
+  await sendMail(email, subject, html);
+};
+
+export { sendVerificationMail, sendResetPasswordMail };

@@ -41,4 +41,11 @@ const getMe = async (req, res) => {
   ApiResponse.ok(res, { message: "User Profile", data: user });
 };
 
-export { register, login, getMe };
+const forgotPassword = async (req, res) => {
+  await authService.forgotPassword(req.body);
+  ApiResponse.ok(res, {
+    message: "If the email is registered, a password link has been sent",
+  });
+};
+
+export { register, login, getMe, logout, forgotPassword };

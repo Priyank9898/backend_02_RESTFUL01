@@ -1,3 +1,7 @@
+import {
+  sendResetPasswordMail,
+  sendVerificationMail,
+} from "../../common/config/email.js";
 import ApiError from "../../common/utils/api-error.js";
 import {
   generateAccessToken,
@@ -25,6 +29,15 @@ const register = async ({ name, email, password, role }) => {
     role,
     verificationToken: hashedToken,
   });
+
+  try {
+    await sendVerificationMail(email, rawToken);
+  } catch (err) {
+    await user.deleteOne(); // rollback if email send error
+    throw ApiError.internal(
+      "Unable to send verification email.PLease try again later,",
+    );
+  }
 
   const userObj = user.toObject();
 
@@ -114,23 +127,29 @@ const refresh = async (token) => {
 
 const forgotPassword = async (email) => {
   /**
-   * Check if email was sent
-   * generate a token send it to user and save hashed one in db
-   * check if token sent by user matches the one in DB
-   * if matches replace old password with the new password
+   * Check if email exist?
+   * Generate reset token
+   * Save hash token and expiry in DB
+   * Send raw token to user's email
    */
 
-  if (!email) throw ApiError.unAuthorized("Email not found");
+  if (!email) throw ApiError.badRequest("Email not found");
+
+  const user = User.findOne({ email })
+    .select("+resetPasswordToken")
+    .select("+resetPasswordExpires");
+  if (!user) throw ApiError.notFound("user not found");
 
   const { rawToken, hashedToken } = generateResetToken();
 
-  const user = await User.findOne({ email }).select("+resetPasswordToken");
-  if (!user) throw ApiError.notFound("User not found");
-
   user.resetPasswordToken = hashedToken;
-  user.resetPasswordExpires = Date.now() + 5 * 60 * 1000;
+  user.resetPasswordExpires = Date.now() + 5 * 60 * 1000; //5 minutes
 
-  user.save({ validateBeforeSave: false });
+  await user.save({ validateBeforeSave: false });
+
+  await sendResetPasswordMail(email, rawToken);
+
+  return;
 };
 
 const getMe = async (userId) => {
