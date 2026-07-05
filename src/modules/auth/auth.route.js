@@ -9,6 +9,7 @@ import ForgotDto from "./dto/forgot.dto.js";
 const router = Router();
 
 router.post("/register", validate(RegisterDto), controller.register);
+router.get("/verify-email/:token", controller.verifyMail);
 router.post("/login", validate(LoginDto), controller.login);
 router.get("/me", authenticate, controller.getMe);
 router.post("/logout", authenticate, controller.logout);

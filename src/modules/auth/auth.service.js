@@ -1,3 +1,4 @@
+import { unwatchFile } from "node:fs";
 import {
   sendResetPasswordMail,
   sendVerificationMail,
@@ -48,6 +49,22 @@ const register = async ({ name, email, password, role }) => {
     userObj,
     verificationToken: rawToken,
   };
+};
+
+const verifyEmail = async (token) => {
+  if (!token) throw ApiError.badRequest("No token present");
+
+  const hashedToken = hashToken(token);
+
+  const user = await User.findOne({ verificationToken: hashedToken });
+  if (!user) throw ApiError.badRequest("Invalid Verification Token");
+
+  user.isVerified = true;
+  user.verificationToken = undefined;
+
+  await user.save({ validateBeforeSave: false });
+
+  return user;
 };
 
 const login = async ({ email, password }) => {
@@ -158,4 +175,4 @@ const getMe = async (userId) => {
   return user;
 };
 
-export { register, login, refresh, logout, forgotPassword, getMe };
+export { register, login, refresh, logout, forgotPassword, getMe, verifyEmail };

@@ -3,7 +3,19 @@ import ApiResponse from "../../common/utils/api-response.js";
 
 const register = async (req, res) => {
   const user = await authService.register(req.body);
-  ApiResponse.created(res, { message: "Registration Successful", data: user });
+  return ApiResponse.created(res, {
+    message: "Registration Successful",
+    data: user,
+  });
+};
+
+const verifyMail = async (req, res) => {
+  const user = await authService.verifyEmail(req.params.token);
+
+  return ApiResponse.ok(res, {
+    message: "Email verified successfully",
+    data: user,
+  });
 };
 
 const login = async (req, res) => {
@@ -31,21 +43,21 @@ const logout = async (req, res) => {
   // TODO to send user id here
   await authService.logout(req.user.id);
   res.clearCookie("refreshToken");
-  ApiResponse.ok(res, {
+  return ApiResponse.ok(res, {
     message: "Logged out successfully",
   });
 };
 
 const getMe = async (req, res) => {
   const user = await authService.getMe(req.user.id);
-  ApiResponse.ok(res, { message: "User Profile", data: user });
+  return ApiResponse.ok(res, { message: "User Profile", data: user });
 };
 
 const forgotPassword = async (req, res) => {
   await authService.forgotPassword(req.body);
-  ApiResponse.ok(res, {
+  return ApiResponse.ok(res, {
     message: "If the email is registered, a password link has been sent",
   });
 };
 
-export { register, login, getMe, logout, forgotPassword };
+export { register, login, getMe, logout, forgotPassword, verifyMail };

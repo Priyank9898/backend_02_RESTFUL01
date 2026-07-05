@@ -22,7 +22,6 @@ const userSchema = new Schema(
     },
 
     password: {
-      // Will discuss more about password letter regarding hashing and encryption
       type: String,
       required: [true, "Password is required"],
       minlength: 8,
@@ -41,7 +40,6 @@ const userSchema = new Schema(
       default: false,
     },
 
-    //! select : false --> Makes sure that it does not get returned
     verificationToken: {
       type: String,
       select: false,
