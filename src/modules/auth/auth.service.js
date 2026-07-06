@@ -1,4 +1,3 @@
-import { unwatchFile } from "node:fs";
 import {
   sendResetPasswordMail,
   sendVerificationMail,
@@ -56,7 +55,9 @@ const verifyEmail = async (token) => {
 
   const hashedToken = hashToken(token);
 
-  const user = await User.findOne({ verificationToken: hashedToken });
+  const user = await User.findOne({ verificationToken: hashedToken }).select(
+    "+verificationToken",
+  );
   if (!user) throw ApiError.badRequest("Invalid Verification Token");
 
   user.isVerified = true;
@@ -175,4 +176,36 @@ const getMe = async (userId) => {
   return user;
 };
 
-export { register, login, refresh, logout, forgotPassword, getMe, verifyEmail };
+const resetPassword = async (token, password) => {
+  if (!token) throw ApiError.badRequest("Reset token is missing");
+  if (!password) throw ApiError.badRequest("Password is missing");
+
+  const hashedToken = hashToken(token);
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  })
+    .select("+resetPasswordToken")
+    .select("+resetPasswordExpires");
+
+  if (!user) throw ApiError.badRequest("Invalid or expired reset token");
+
+  user.password = password;
+
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+
+  await user.save();
+};
+
+export {
+  register,
+  login,
+  refresh,
+  logout,
+  forgotPassword,
+  getMe,
+  verifyEmail,
+  resetPassword,
+};
