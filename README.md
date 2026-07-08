@@ -1,19 +1,26 @@
 # Backend 02 - RESTful API
 
-A backend authentication system built with Node.js, Express.js, MongoDB, and JWT.
+A RESTful Authentication API built with **Node.js**, **Express.js**, **MongoDB**, and **JWT**. This project implements secure user authentication using access and refresh tokens, cookie-based authentication, email verification, password reset, and role-based authorization.
+
+---
 
 ## Features
 
 - User Registration
-- User Login
-- JWT Authentication
-- Refresh Token Flow
-- Logout
-- Get User Profile
-- Request Validation using Joi
-- Password Hashing using bcrypt
-- Role-based Authorization Middleware
+- Email Verification
+- Secure User Login
+- JWT Access & Refresh Token Authentication
 - Cookie-based Authentication
+- Logout
+- Get Current User Profile
+- Forgot Password
+- Reset Password
+- Password Hashing using bcrypt
+- Request Validation using Joi
+- Authentication Middleware
+- Role-based Authorization Middleware
+
+---
 
 ## Tech Stack
 
@@ -26,9 +33,11 @@ A backend authentication system built with Node.js, Express.js, MongoDB, and JWT
 - Joi
 - Cookie Parser
 
+---
+
 ## Project Structure
 
-```
+```text
 src
 ├── common
 │   ├── config
@@ -37,9 +46,45 @@ src
 │   ├── middleware
 │   └── utils
 │
-└── modules
-    └── auth
+├── modules
+│   └── auth
+│       ├── dto
+│       ├── auth.controller.js
+│       ├── auth.model.js
+│       ├── auth.routes.js
+│       └── auth.service.js
+│
+└── server.js
 ```
+
+---
+
+## API Endpoints
+
+| Method | Endpoint                      | Description               |
+| ------ | ----------------------------- | ------------------------- |
+| POST   | `/auth/register`              | Register a new user       |
+| POST   | `/auth/login`                 | Login user                |
+| POST   | `/auth/logout`                | Logout user               |
+| POST   | `/auth/refresh`               | Refresh access token      |
+| GET    | `/auth/me`                    | Get current user          |
+| POST   | `/auth/forgot-password`       | Send password reset email |
+| POST   | `/auth/reset-password/:token` | Reset user password       |
+| GET    | `/auth/verify-email/:token`   | Verify user email         |
+
+---
+
+## Security Features
+
+- Password hashing using bcrypt
+- JWT Access & Refresh Tokens
+- Hashed Refresh Tokens stored in database
+- HttpOnly Cookie Authentication
+- Request Validation using Joi
+- Role-based Authorization
+- Password Reset Token Expiration
+
+---
 
 ## Environment Variables
 
@@ -57,11 +102,15 @@ JWT_REFRESH_SECRET=your_refresh_secret
 JWT_REFRESH_EXPIRES_IN=7d
 ```
 
+---
+
 ## Installation
 
 ```bash
 npm install
 ```
+
+---
 
 ## Run
 
@@ -69,16 +118,32 @@ npm install
 npm run dev
 ```
 
-## Current Progress
+---
+
+## Current Status
 
 - ✅ Authentication Module
-- ✅ JWT Access & Refresh Tokens
+- ✅ Email Verification
+- ✅ JWT Authentication
+- ✅ Refresh Token Rotation
 - ✅ Cookie-based Authentication
 - ✅ Protected Routes
 - ✅ User Profile Endpoint
-- 🚧 Forgot Password
-- 🚧 Email Verification
+- ✅ Forgot Password
+- ✅ Reset Password
+
+---
+
+## Future Improvements
+
+- OAuth Authentication (Google/GitHub)
+- Rate Limiting
+- API Documentation (Swagger)
+- Docker Support
+- Unit & Integration Testing
+
+---
 
 ## Author
 
-Priyank Patel
+**Priyank Patel**
