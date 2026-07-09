@@ -11,6 +11,8 @@ const authenticate = async (req, res, next) => {
   if (!token) throw ApiError.unAuthorized("Not authenticated");
 
   const decoded = verifyAccessToken(token);
+  if (!decoded) throw ApiError.unAuthorized("Invalid or expired access token");
+
   const user = await User.findById(decoded.id);
   if (!user) throw ApiError.unAuthorized("User does not exist");
 
