@@ -10,6 +10,7 @@ import {
   verifyRefreshToken,
 } from "../../common/utils/jwt.utils.js";
 import User from "./auth.model.js";
+import crypto from "crypto";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +31,7 @@ const register = async ({ name, email, password, role }) => {
     verificationToken: hashedToken,
   });
 
+  // TODO: Implement email verification
   try {
     await sendVerificationMail(email, rawToken);
   } catch (err) {
@@ -79,7 +81,8 @@ const login = async ({ email, password }) => {
   if (!isMatchPassword)
     throw ApiError.unauthorized("Invalid email or password");
 
-  if (!user.isVerified) throw ApiError.unAuthorized("Please verify your email");
+  // TODO : After email verification is implemented then uncomment this line to check if user is verified or not
+  // if (!user.isVerified) throw ApiError.unAuthorized("Please verify your email");
 
   const accessToken = generateAccessToken({ id: user._id, role: user.role });
   const refreshToken = generateRefreshToken({ id: user._id });
