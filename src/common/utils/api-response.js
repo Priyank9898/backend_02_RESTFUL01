@@ -9,7 +9,7 @@ class ApiResponse {
 
   static created(res, { message = "created", data = null } = {}) {
     return res.status(201).json({
-      success: false,
+      success: true,
       message,
       data,
     });

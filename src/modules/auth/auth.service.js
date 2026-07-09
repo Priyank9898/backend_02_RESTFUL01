@@ -32,14 +32,14 @@ const register = async ({ name, email, password, role }) => {
   });
 
   // TODO: Implement email verification
-  try {
-    await sendVerificationMail(email, rawToken);
-  } catch (err) {
-    await user.deleteOne(); // rollback if email send error
-    throw ApiError.internal(
-      "Unable to send verification email.PLease try again later,",
-    );
-  }
+  // try {
+  //   await sendVerificationMail(email, rawToken);
+  // } catch (err) {
+  //   await user.deleteOne(); // rollback if email send error
+  //   throw ApiError.internal(
+  //     "Unable to send verification email.PLease try again later,",
+  //   );
+  // }
 
   const userObj = user.toObject();
 
@@ -120,9 +120,11 @@ const refresh = async (token) => {
   if (!token) throw ApiError.unAuthorized("No refresh token present");
 
   const decoded = verifyRefreshToken(token); // I can get id from this
+
   if (!decoded) throw ApiError.unAuthorized("Invalid or expired refresh token");
 
   const user = await User.findById(decoded.id).select("+refreshToken");
+
   if (!user) throw ApiError.unAuthorized("User not found for refresh Token");
 
   const hashedRefreshToken = hashToken(token);
@@ -131,9 +133,11 @@ const refresh = async (token) => {
     throw ApiError.unAuthorized("Refresh Token does not match");
 
   const refreshToken = generateRefreshToken({ id: user._id });
+
   const accessToken = generateAccessToken({ id: user._id, role: user.role });
 
   user.refreshToken = hashToken(refreshToken);
+
   await user.save({ validateBeforeSave: false });
 
   const userObj = user.toObject();
@@ -146,7 +150,7 @@ const refresh = async (token) => {
   };
 };
 
-const forgotPassword = async (email) => {
+const forgotPassword = async ({ email }) => {
   /**
    * Check if email exist?
    * Generate reset token
@@ -156,7 +160,7 @@ const forgotPassword = async (email) => {
 
   if (!email) throw ApiError.badRequest("Email not found");
 
-  const user = User.findOne({ email })
+  const user = await User.findOne({ email })
     .select("+resetPasswordToken")
     .select("+resetPasswordExpires");
   if (!user) throw ApiError.notFound("user not found");
@@ -168,9 +172,11 @@ const forgotPassword = async (email) => {
 
   await user.save({ validateBeforeSave: false });
 
-  await sendResetPasswordMail(email, rawToken);
+  // TODO: email implementation will be done later on
+  // await sendResetPasswordMail(email, rawToken);
 
-  return;
+  // TODO: Remove rawToken from response after email integration.
+  return { rawToken };
 };
 
 const getMe = async (userId) => {

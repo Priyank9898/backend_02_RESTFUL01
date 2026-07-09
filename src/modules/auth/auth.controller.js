@@ -54,9 +54,10 @@ const getMe = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
-  await authService.forgotPassword(req.body);
+  const { rawToken } = await authService.forgotPassword(req.body);
   return ApiResponse.ok(res, {
     message: "If the email is registered, a password link has been sent",
+    data: rawToken,
   });
 };
 
@@ -75,7 +76,7 @@ const refresh = async (req, res) => {
     throw ApiError.unAuthorized("No refresh token present in the request");
 
   const { userObj, accessToken, refreshToken } =
-    await authService.refresh(refreshToken);
+    await authService.refresh(existingRefreshToken);
 
   // Set the new refresh token in the cookie
   const cookieOptions = {
