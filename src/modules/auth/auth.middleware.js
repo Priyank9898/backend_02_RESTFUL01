@@ -4,7 +4,6 @@ import User from "./auth.model.js";
 
 const authenticate = async (req, res, next) => {
   let token;
-  //* If getting from cookie then access from req.cookies also install cookie parser from npm
   if (req.headers.authorization?.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
   }

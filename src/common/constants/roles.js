@@ -4,5 +4,3 @@ export const ROLES = Object.freeze({
   ADMIN: "admin",
   DISTRIBUTOR: "distributor",
 });
-
-console.log(Object.values(ROLES).toString());

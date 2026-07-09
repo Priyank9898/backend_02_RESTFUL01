@@ -29,4 +29,7 @@ router.post("/forgot-password", validate(ForgotDto), controller.forgotPassword);
 // Reset password
 router.post("/reset-password/:token", controller.resetPassword);
 
+// refresh token
+router.post("/refresh-token", controller.refresh);
+
 export default router;
