@@ -5,6 +5,7 @@ import * as controller from "./auth.controller.js";
 import LoginDto from "./dto/login.dto.js";
 import { authenticate } from "./auth.middleware.js";
 import ForgotDto from "./dto/forgot.dto.js";
+import ResetPasswordDto from "./dto/rest-password.dto.js";
 
 const router = Router();
 
@@ -27,7 +28,11 @@ router.post("/logout", authenticate, controller.logout);
 router.post("/forgot-password", validate(ForgotDto), controller.forgotPassword);
 
 // Reset password
-router.post("/reset-password/:token", controller.resetPassword);
+router.post(
+  "/reset-password/:token",
+  validate(ResetPasswordDto),
+  controller.resetPassword,
+);
 
 // refresh token
 router.post("/refresh-token", controller.refresh);

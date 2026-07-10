@@ -146,4 +146,4 @@ npm run dev
 
 ## Author
 
-**Priyank Patel**
+**Priyank**
