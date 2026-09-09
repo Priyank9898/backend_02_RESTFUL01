@@ -7,12 +7,16 @@ const generateAccessToken = (payload) => {
   });
 };
 
+// const verifyAccessToken = (token) => {
+//   try {
+//     return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+//   } catch (err) {
+//     return null;
+//   }
+// };
+
 const verifyAccessToken = (token) => {
-  try {
-    return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-  } catch (err) {
-    return null;
-  }
+  return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 };
 
 ////////////////////////////////////////////////////
@@ -23,12 +27,16 @@ const generateRefreshToken = (payload) => {
   });
 };
 
+// const verifyRefreshToken = (token) => {
+//   try {
+//     return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+//   } catch (err) {
+//     return null;
+//   }
+// };
+
 const verifyRefreshToken = (token) => {
-  try {
-    return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-  } catch (err) {
-    return null;
-  }
+  return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 };
 
 ////////////////////////////////////////////////////

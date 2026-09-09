@@ -9,8 +9,21 @@ const authenticate = async (req, res, next) => {
   }
   if (!token) throw ApiError.unAuthorized("Not authenticated");
 
-  const decoded = verifyAccessToken(token);
-  if (!decoded) throw ApiError.unAuthorized("Invalid or expired access token");
+  //! Wont work because internally removed try and catch from utils
+  // const decoded = verifyAccessToken(token);
+  // if (!decoded) throw ApiError.unAuthorized("Invalid or expired access token");
+
+  let decoded;
+
+  try {
+    decoded = verifyAccessToken(token);
+  } catch (err) {
+    throw ApiError.unAuthorized(
+      err.name === "TokenExpiredError"
+        ? "Access token expired"
+        : "Invalid access token",
+    );
+  }
 
   const user = await User.findById(decoded.id);
   if (!user) throw ApiError.unAuthorized("User does not exist");
@@ -25,7 +38,7 @@ const authenticate = async (req, res, next) => {
   next();
 };
 
-const authorize = async (...roles) => {
+const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       throw ApiError.forbidden(

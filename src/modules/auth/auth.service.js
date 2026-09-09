@@ -52,6 +52,7 @@ const register = async ({ name, email, password, role }) => {
   };
 };
 
+//!TODO
 const verifyEmail = async (token) => {
   if (!token) throw ApiError.badRequest("No token present");
 
@@ -93,7 +94,7 @@ const login = async ({ email, password }) => {
   const userObj = user.toObject();
   delete userObj.password;
   delete userObj.refreshToken;
-  delete userObj.verificationToken;
+  // delete userObj.verificationToken;
 
   return {
     user: userObj,
@@ -119,16 +120,13 @@ const refresh = async (token) => {
 
   if (!token) throw ApiError.unAuthorized("No refresh token present");
 
-  const decoded = verifyRefreshToken(token); // I can get id from this
-
+  const decoded = verifyRefreshToken(token); // I can get id from this via the payload
   if (!decoded) throw ApiError.unAuthorized("Invalid or expired refresh token");
 
   const user = await User.findById(decoded.id).select("+refreshToken");
-
   if (!user) throw ApiError.unAuthorized("User not found for refresh Token");
 
   const hashedRefreshToken = hashToken(token);
-
   if (hashedRefreshToken !== user.refreshToken)
     throw ApiError.unAuthorized("Refresh Token does not match");
 

@@ -2,8 +2,8 @@ import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: false, // true if using port 465
+  port: Number(process.env.SMTP_PORT),
+  secure: Number(process.env.SMTP_PORT) === 465, // true only for port 465
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -11,59 +11,55 @@ const transporter = nodemailer.createTransport({
 });
 
 // Generic email sender
-const sendMail = async (to, subject, html) => {
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM_EMAIL,
-    to,
-    subject,
-    html,
-  });
+const sendMail = async (to, subject, html, text) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM_EMAIL,
+      to,
+      subject,
+      html,
+      text, // plain-text fallback, improves deliverability
+    });
+  } catch (err) {
+    // Don't let an email-provider hiccup crash registration/reset flows.
+    // Log it so you can debug/alert, but let the caller decide what to do.
+    console.error(`Failed to send email to ${to}:`, err.message);
+    throw err; // re-throw so caller can choose to swallow or surface it
+  }
 };
 
-// EMail verification
+// Email verification
 const sendVerificationMail = async (email, token) => {
   const subject = "Verify Your Email";
-
   const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${token}`;
 
   const html = `
     <h2>Welcome!</h2>
-
     <p>Thank you for registering.</p>
-
     <p>Please click the button below to verify your email.</p>
-
-    <a href="${verificationUrl}">
-      Verify Email
-    </a>
+    <a href="${verificationUrl}">Verify Email</a>
   `;
+  const text = `Welcome! Verify your email using this link: ${verificationUrl}`;
 
-  await sendMail(email, subject, html);
+  await sendMail(email, subject, html, text);
 };
 
 // Forgot Password
 const sendResetPasswordMail = async (email, token) => {
   const subject = "Reset Your Password";
-
   const resetPasswordUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
   const html = `
     <h2>Password Reset Request</h2>
-
     <p>We received a request to reset your password.</p>
-
     <p>Click the button below to reset your password.</p>
-
-    <a href="${resetPasswordUrl}">
-      Reset Password
-    </a>
-
+    <a href="${resetPasswordUrl}">Reset Password</a>
     <p>This link will expire in 5 minutes.</p>
-
     <p>If you didn't request this, you can safely ignore this email.</p>
   `;
+  const text = `Reset your password using this link (expires in 5 minutes): ${resetPasswordUrl}`;
 
-  await sendMail(email, subject, html);
+  await sendMail(email, subject, html, text);
 };
 
 export { sendVerificationMail, sendResetPasswordMail };
